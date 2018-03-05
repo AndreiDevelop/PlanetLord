@@ -21,6 +21,14 @@ public class WorldHolder : MonoBehaviour
 		return returnGameObject;
 	}
 		
+	public int WorldsCount
+	{
+		get 
+		{
+			return _worldsList.Count;
+		}
+	}
+
 	void Start () 
 	{
 		_curTransform = transform;

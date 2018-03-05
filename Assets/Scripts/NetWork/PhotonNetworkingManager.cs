@@ -29,6 +29,8 @@ public class PhotonNetworkingManager : MonoBehaviour
 
 	public virtual void OnJoinedLobby()
 	{
+		//PhotonNetwork.autoCleanUpPlayerObjects = false;
+		PhotonNetwork.automaticallySyncScene = true;
 		Debug.Log ("We joined lobby");
 		PhotonNetwork.JoinOrCreateRoom (ROOM_NAME, null, null);
 	}
@@ -36,8 +38,14 @@ public class PhotonNetworkingManager : MonoBehaviour
 	public virtual void OnJoinedRoom()
 	{
 		GameObject player = PhotonNetwork.Instantiate (_player.name, _playerSpawnPoint.position, _playerSpawnPoint.rotation, 0);
-		PositionalManager.ReplaceObjectOnPlanet (ref player, _world);
+
+		Vector3 newPosition = PositionalManager.CalculatePosionReplaceObjectOnPlanet (player.transform, _world.transform);
+		PositionalManager.ReplaceObjectOnPlanet (ref player, _world, newPosition);
+
 		_lobbyCamera.SetActive (false);
+
+		if (OnJoinRoom != null)
+			OnJoinRoom ();
 	}
 
 	// Update is called once per frame
