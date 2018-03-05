@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PositionalManager : MonoBehaviour 
+public class PositionalManager
 {
 	 public static void ReplaceObjectOnPlanet (ref GameObject objectToReplace, GameObject planet) 
 	 {
