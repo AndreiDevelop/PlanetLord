@@ -14,7 +14,8 @@ public class PhotonNetworkingManager : MonoBehaviour
 	private Transform _playerSpawnPoint = null;
 	[SerializeField]
 	private GameObject _lobbyCamera = null;
-
+	[SerializeField]
+	private GameObject _world = null;
 
 	void Start () 
 	{
@@ -29,7 +30,8 @@ public class PhotonNetworkingManager : MonoBehaviour
 
 	public virtual void OnJoinedRoom()
 	{
-		PhotonNetwork.Instantiate (_player.name, _playerSpawnPoint.position, _playerSpawnPoint.rotation, 0);
+		GameObject player = PhotonNetwork.Instantiate (_player.name, _playerSpawnPoint.position, _playerSpawnPoint.rotation, 0);
+		PositionalManager.ReplaceObjectOnPlanet (ref player, _world);
 		_lobbyCamera.SetActive (false);
 	}
 
