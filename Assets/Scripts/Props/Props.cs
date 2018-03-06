@@ -7,12 +7,15 @@ public abstract class Props : MonoBehaviour
 
 	void Start()
 	{
-		_propsManager = transform.parent.GetComponent<PropsManager> ();
+		_propsManager = FindObjectOfType<PropsManager> ();
+
+		if (_propsManager.CanAddProps)
+			_propsManager.InitializePropsInPropsList (gameObject);
 	}
 
 	public void OnTriggerEnter(Collider col)
 	{
-		if(col.tag == TagConstants.PLAYER)
-			_propsManager.ActionDeleteProps (gameObject);
+		if(col.tag == TagConstants.PLAYER && _propsManager!=null)
+			_propsManager.RemoveProps (gameObject);
 	}
 }

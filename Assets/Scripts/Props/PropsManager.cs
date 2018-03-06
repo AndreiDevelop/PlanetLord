@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public abstract class PropsManager : Photon.MonoBehaviour
+public abstract class PropsManager : MonoBehaviour
 {
 	[SerializeField]
 	private GameObject _propsPrefab = null;
@@ -26,69 +26,75 @@ public abstract class PropsManager : Photon.MonoBehaviour
 		}
 	}
 		
+	public bool CanAddProps
+	{
+		get 
+		{
+			return PropsCount < _requireCount;
+		}
+	}
+
+	public void InitializePropsInPropsList(GameObject newProps)
+	{
+		newProps.transform.SetParent (_curTransform);
+		_propsList.Add (newProps);
+	}
+
 	void OnEnable()
 	{
-		PhotonNetworkingManager.OnJoinRoom += CustomStart;
+		PhotonNetworkingManager.OnCreateRoom += CreateProps;
 	}
 
 	void OnDisable()
 	{
-		PhotonNetworkingManager.OnJoinRoom -= CustomStart;
+		PhotonNetworkingManager.OnCreateRoom -= CreateProps;
 	}
 
-	private void CustomStart () 
+	void Start()
 	{
 		_curTransform = transform;
-
-		Debug.Log (PhotonNetwork.countOfPlayers);
-
-		if (PhotonNetwork.countOfPlayers < 2) 
-		{
-			while (PropsCount < _requireCount) 
-			{
-				ActionAddProps ();
-			} 
-		}
 	}
 
-	public virtual void ActionDeleteProps(GameObject props)
+	private void CreateProps () 
 	{
-		int findIndex = _propsList.FindIndex (item => item.Equals (props));
-		RemoveProps(findIndex);
+		while (PropsCount < _requireCount) 
+		{
+			AddProps ();
+		} 
 	}
 
-	public virtual void ActionAddProps()
+	private void SetProps () 
+	{
+		while (PropsCount < _requireCount) 
+		{
+			var propsFromCache = PhotonNetwork.PrefabCache.Where (x => string.Equals(x.Key,_propsPrefab.name));
+
+			foreach (var curProps in propsFromCache)
+			{
+				Debug.Log (curProps.Value.gameObject.name);
+				//InitializePropsInPropsList (curProps.Value.gameObject);
+			}
+		} 
+	}
+
+	public virtual void AddProps()
 	{
 		Vector3 newPosition = PositionalManager.CalculatePosionReplaceObjectOnPlanet (_propsPrefab.transform, _world.transform);
 
-		AddProps(newPosition);
+		GameObject newProps = PhotonNetwork.InstantiateSceneObject(_propsPrefab.name, Vector3.zero, Quaternion.identity, 0, null);
+		PositionalManager.ReplaceObjectOnPlanet (ref newProps, _world, newPosition);
+
+		InitializePropsInPropsList (newProps);
 	}
 		
-	public virtual void AddProps(Vector3 position)
+	public virtual void RemoveProps(GameObject props)
 	{
-		GameObject newProps = PhotonNetwork.Instantiate(_propsPrefab.name, Vector3.zero, Quaternion.identity, 0);
-		newProps.transform.SetParent (_curTransform);
+		int propsIndex = _propsList.FindIndex (item => item.Equals (props));
 
-		PositionalManager.ReplaceObjectOnPlanet (ref newProps, _world, position);
+		PhotonNetwork.Destroy (_propsList [propsIndex].gameObject);
 
-		_propsList.Add (newProps);
+		_propsList.RemoveAt (propsIndex);
 
-		Debug.Log ("Add ");
-	}
-		
-	public virtual void RemoveProps(int propNum)
-	{
-		PhotonNetwork.Destroy (_propsList [propNum].gameObject);
-
-		_propsList.RemoveAt (propNum);
-
-		Debug.Log ("Remove " + propNum);
-		ActionAddProps ();
-
-//		photonView.RPC("dfshdftghf",PhotonTargets.AllBuffered)
-//		{
-//			
-//		}
-
+		AddProps ();
 	}
 }

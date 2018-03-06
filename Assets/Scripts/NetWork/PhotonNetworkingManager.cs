@@ -3,8 +3,9 @@ using UnityEngine.UI;
 
 public class PhotonNetworkingManager : MonoBehaviour
 {
-	public delegate void NetworKStateHandler();
-	public static event NetworKStateHandler OnJoinRoom;
+	public delegate void NetworkStateHandler();
+	public static event NetworkStateHandler OnJoinRoom;
+	public static event NetworkStateHandler OnCreateRoom;
 
 	private const string CONNECTED_TO = "Andrei01";
 	private const string ROOM_NAME = "New room";
@@ -33,6 +34,12 @@ public class PhotonNetworkingManager : MonoBehaviour
 		PhotonNetwork.automaticallySyncScene = true;
 		Debug.Log ("We joined lobby");
 		PhotonNetwork.JoinOrCreateRoom (ROOM_NAME, null, null);
+	}
+
+	public virtual void OnCreatedRoom()
+	{
+		if (OnCreateRoom != null)
+			OnCreateRoom ();
 	}
 
 	public virtual void OnJoinedRoom()
