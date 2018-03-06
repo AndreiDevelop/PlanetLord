@@ -44,4 +44,5 @@ MonoBehaviour:
   - TaggedPlayer
   - AddProps
   - RemoveProps
+  - ReplaceProps
   DisableAutoOpenWizard: 1
